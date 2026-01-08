@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8085 Microprocessor Architecture</title>
+    <style>
+        /* All your existing CSS styles remain the same */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #1a797e;
+            --primary-light: #534bae;
+            --primary-dark: #1a797e;
+            --secondary: #f5f5f5;
+            --accent: #ff5722;
+            --text: #333;
+            --text-light: #666;
+        }
+
+        body {
+            background-color: #dae0ab;
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 1.5rem 0;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" opacity="0.1"><path d="M0 0h100v100H0z" fill="white"/><path d="M20 20h60v60H20z" stroke="white" stroke-width="2" fill="none"/><circle cx="50" cy="50" r="15" stroke="white" stroke-width="1.5" fill="none"/></svg>');
+            opacity: 0.1;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .architecture-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .architecture-section:hover {
+            transform: translateY(-5px);
+        }
+
+        .architecture-section h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-light);
+            display: inline-block;
+        }
+
+        .diagram-container {
+            position: relative;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .architecture-diagram {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .architecture-diagram:hover {
+            transform: scale(1.02);
+        }
+
+        .navigation-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-btn.active {
+            background: var(--primary-dark);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) inset;
+        }
+
+        .nav-btn::before {
+            content: "▶";
+            margin-right: 0.7rem;
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-btn.active::before {
+            transform: rotate(90deg);
+        }
+
+        .content-section {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-top: 2rem;
+            animation: fadeIn 0.5s ease;
+            border-top: 4px solid var(--accent);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+        }
+
+        .content-section h2::before {
+            content: "📍";
+            margin-right: 0.7rem;
+            font-size: 1.5rem;
+        }
+
+        .component-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .component-item {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            transition: transform 0.3s ease;
+        }
+
+        .component-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .component-item h4 {
+            color: var(--primary-dark);
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .component-item h4::before {
+            content: "⚡";
+            margin-right: 0.5rem;
+        }
+
+        .component-item p {
+            color: var(--text-light);
+        }
+
+        .highlight {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .architecture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .architecture-card {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .architecture-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .architecture-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 0.5rem;
+        }
+
+        .feature-list {
+            list-style-type: none;
+        }
+
+        .feature-list li {
+            margin-bottom: 0.8rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .feature-list li::before {
+            content: "•";
+            color: var(--accent);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        footer {
+            background: var(--primary-dark);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .navigation-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .component-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .architecture-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        .chip-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M9 4v2H7V4h2m4 0v2h-2V4h2m4 0v2h-2V4h2m4 0v2h-2V4h2m2 0h2v16H3V4h2V2h2v2h2V2h2v2h2V2h2v2h2V2h2v2h2m0 16V8H5v12h14m0 2H5v2h14v-2z"/></svg>');
+            background-size: contain;
+        }
+
+        /* About section specific styles */
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .about-card {
+            background: #f9f9f9;
+            padding: 2rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .about-card h3 {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 0.5rem;
+        }
+
+        .about-list {
+            list-style-type: none;
+        }
+
+        .about-list li {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .about-list li::before {
+            content: "•";
+            color: var(--accent);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        @media (max-width: 768px) {
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content container">
+            <h1><span class="chip-icon"></span>8085 Microprocessor Architecture</h1>
+            <p>Explore the internal architecture and functional units of the Intel 8085 microprocessor</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="architecture-section">
+            <h2>8085 Architecture Diagram</h2>
+            <div class="diagram-container">
+                <img src="images/maxresdefault.jpg" 
+                     alt="8085 Microprocessor Architecture Diagram" 
+                     class="architecture-diagram">
+            </div>
+
+            <div class="navigation-buttons">
+                <button class="nav-btn active" data-target="overview">Overview</button>
+                <button class="nav-btn" data-target="alu">ALU</button>
+                <button class="nav-btn" data-target="registers">Registers</button>
+                <button class="nav-btn" data-target="control">Control Unit</button>
+                <button class="nav-btn" data-target="buses">Buses</button>
+                <button class="nav-btn" data-target="instruction">Instruction Set</button>
+                <button class="nav-btn" data-target="about">About</button>
+            </div>
+        </section>
+
+        <!-- Content Sections -->
+        <section id="overview" class="content-section active">
+            <h2>8085 Microprocessor Overview</h2>
+            <p>The Intel 8085 is an 8-bit microprocessor that was introduced by Intel in 1976. It is the last 8-bit microprocessor developed by Intel. The 8085 uses a single +5V power supply and operates at 3 MHz, 5 MHz, and 6 MHz versions.</p>
+            
+            <div class="architecture-grid">
+                <div class="architecture-card">
+                    <h3>Key Features</h3>
+                    <ul class="feature-list">
+                        <li>8-bit data bus</li>
+                        <li>16-bit address bus</li>
+                        <li>64KB addressable memory</li>
+                        <li>6 general-purpose registers</li>
+                        <li>5 interrupt signals</li>
+                        <li>Serial I/O ports</li>
+                        <li>DMA capability</li>
+                    </ul>
+                </div>
+                <div class="architecture-card">
+                    <h3>Technical Specifications</h3>
+                    <ul class="feature-list">
+                        <li>Clock Speed: 3-6 MHz</li>
+                        <li>Instruction Set: 246 instructions</li>
+                        <li>Addressing Modes: 5</li>
+                        <li>Power Supply: +5V</li>
+                        <li>Technology: NMOS</li>
+                        <li>Package: 40-pin DIP</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="component-info">
+                <div class="component-item">
+                    <h4>Arithmetic Logic Unit (ALU)</h4>
+                    <p>Performs arithmetic and logical operations on 8-bit data.</p>
+                </div>
+                <div class="component-item">
+                    <h4>Registers</h4>
+                    <p>Six 8-bit general-purpose registers (B, C, D, E, H, L) that can be paired to form three 16-bit registers (BC, DE, HL).</p>
+                </div>
+                <div class="component-item">
+                    <h4>Program Counter (PC)</h4>
+                    <p>16-bit register that holds the address of the next instruction to be executed.</p>
+                </div>
+                <div class="component-item">
+                    <h4>Stack Pointer (SP)</h4>
+                    <p>16-bit register that points to the top of the stack in memory.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="alu" class="content-section">
+            <h2>Arithmetic Logic Unit (ALU)</h2>
+            <p>The Arithmetic Logic Unit (ALU) is the computational heart of the 8085 microprocessor. It performs arithmetic operations (addition, subtraction) and logical operations (AND, OR, XOR, etc.) on 8-bit data.</p>
+            
+            <div class="architecture-grid">
+                <div class="architecture-card">
+                    <h3>ALU Functions</h3>
+                    <ul class="feature-list">
+                        <li>Addition and subtraction</li>
+                        <li>Logical AND, OR, XOR</li>
+                        <li>Increment and decrement</li>
+                        <li>Bit shifting and rotation</li>
+                        <li>Compare operations</li>
+                        <li>Decimal adjustment</li>
+                    </ul>
+                </div>
+                <div class="architecture-card">
+                    <h3>ALU Operations</h3>
+                    <ul class="feature-list">
+                        <li>All arithmetic operations use the accumulator as one operand</li>
+                        <li>Results of ALU operations are stored in the accumulator</li>
+                        <li>ALU sets flags in the flag register based on operation results</li>
+                        <li>Supports both 8-bit and 16-bit operations</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="component-info">
+                <div class="component-item">
+                    <h4>Accumulator (A)</h4>
+                    <p>8-bit register used for arithmetic, logic, and data transfer operations. One operand is always stored in the accumulator.</p>
+                </div>
+                <div class="component-item">
+                    <h4>Temporary Register</h4>
+                    <p>8-bit register used to hold temporary data during ALU operations. Not accessible to the programmer.</p>
+                </div>
+                <div class="component-item">
+                    <h4>Flag Register</h4>
+                    <p>5-bit register that stores the status of arithmetic and logical operations (Sign, Zero, Auxiliary Carry, Parity, Carry).</p>
+                </div>
+                <div class="component-item">
+                    <h4>ALU Control</h4>
+                    <p>Controls the operation of the ALU based on the instruction being executed.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="registers" class="content-section">
+            <h2>Registers</h2>
+            <p>The 8085 microprocessor contains several types of registers that store data, addresses, and status information during program execution.</p>
+            
+            <div class="architecture-grid">
+                <div class="architecture-card">
+                    <h3>General Purpose Registers</h3>
+                    <ul class="feature-list">
+                        <li>B, C, D, E, H, L - Six 8-bit registers</li>
+                        <li>Can be used individually or in pairs (BC, DE, HL)</li>
+                        <li>HL pair is often used as a memory pointer</li>
+                        <li>Used for data manipulation and temporary storage</li>
+                        <img src="images/1-1.png" 
+                            alt="8085 Microprocessor Architecture Diagram" 
+                            class="architecture-diagram">
+                    </ul>
+                </div>
+                <div class="architecture-card">
+                    <h3>Special Purpose Registers</h3>
+                    <ul class="feature-list">
+                        <li>Accumulator (A) - Primary register for ALU operations</li>
+                        <li>Program Counter (PC) - 16-bit address of next instruction</li>
+                        <li>Stack Pointer (SP) - 16-bit address of stack top</li>
+                        <li>Flag Register :-</li>
+                        <img src="images/flag-register.png" 
+                            alt="8085 Microprocessor Architecture Diagram" 
+                            class="architecture-diagram">
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="component-info">
+                <div class="component-item">
+                    <h4>Accumulator (A)</h4>
+                    <p>8-bit register used as the primary operand for arithmetic and logical operations. Results are stored here.</p>
+                </div>
+                <div class="component-item">
+                    <h4>General Purpose Registers</h4>
+                    <p>B, C, D, E, H, L - Six 8-bit registers that can be used individually or in pairs (BC, DE, HL) for 16-bit operations.</p>
+                </div>
+                <div class="component-item">
+                    <h4>Program Counter (PC)</h4>
+                    <p>16-bit register that holds the memory address of the next instruction to be executed.</p>
+                </div>
+                <div class="component-item">
+                    <h4>Stack Pointer (SP)</h4>
+                    <p>16-bit register that points to the top of the stack in memory, used for subroutine calls and interrupts.</p>
+                </div>
+                <div class="component-item">
+                    <h4>Flag Register</h4>
+                    <p>5-bit register that stores the status of arithmetic and logical operations (Sign, Zero, Auxiliary Carry, Parity, Carry).</p>
+                </div>
+                <div class="component-item">
+                    <h4>Instruction Register (IR)</h4>
+                    <p>8-bit register that holds the opcode of the current instruction being executed.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="control" class="content-section">
+            <h2>Control Unit</h2>
+            <p>The Control Unit coordinates and controls all operations of the microprocessor. It generates control signals that regulate the flow of data between the CPU, memory, and I/O devices.</p>
+            
+            <div class="architecture-grid">
+                <div class="architecture-card">
+                    <h3>Control Signals</h3>
+                    <ul class="feature-list">
+                        <li>ALE (Address Latch Enable): Used to latch the lower byte of the address from the multiplexed address/data bus.</li>
+                        <li>RD (Read): Indicates the processor is reading data from memory or an I/O device.</li>
+                        <li>WR (Write): Indicates the processor is writing data to memory or an I/O device.</li>
+                        <li>IO/M (I/O or Memory): Distinguishes between I/O (1) and memory (0) operations.</li>
+                        <li>S0, S1 (Status): Indicate the current operation or machine cycle status of the processor.</li>
+                        <li>READY: Signals whether a peripheral is ready for data transfer or needs wait states.</li>
+                    </ul>
+                </div>
+                <div class="architecture-card">
+                    <h3>Timing and Control</h3>
+                    <ul class="feature-list">
+                        <li>Instruction fetch cycle</li>
+                        <li>Memory read/write cycle</li>
+                        <li>I/O read/write cycle</li>
+                        <li>Interrupt acknowledge cycle</li>
+                        <li>Bus idle cycle</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="component-info">
+                <div class="component-item">
+                    <h4>Instruction Decoder</h4>
+                    <p>Decodes the instruction fetched from memory and determines the operations to be performed.</p>
+                </div>
+                <div class="component-item">
+                    <h4>Timing and Control Unit</h4>
+                    <p>Generates control signals and coordinates the timing of all microprocessor operations.</p>
+                </div>
+                <div class="component-item">
+                    <h4>Machine Cycle Controller</h4>
+                    <p>Controls the sequence of operations during instruction execution (fetch, decode, execute).</p>
+                </div>
+                <div class="component-item">
+                    <h4>Interrupt Controller</h4>
+                    <p>Manages the five hardware interrupts (TRAP, RST 7.5, RST 6.5, RST 5.5, INTR).</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="buses" class="content-section">
+            <h2>Bus Structure</h2>
+            <p>The 8085 microprocessor uses three types of buses to communicate with memory and I/O devices: Address Bus, Data Bus, and Control Bus.</p>
+            
+            <div class="architecture-grid">
+                <div class="architecture-card">
+                    <h3>Address Bus</h3>
+                    <ul class="feature-list">
+                        <li>16-bit unidirectional bus</li>
+                        <li>Can address 64KB memory</li>
+                        <li>A15-A8: Higher address lines</li>
+                        <li>AD7-AD0: Multiplexed address/data lines</li>
+                    </ul>
+                </div>
+                <div class="architecture-card">
+                    <h3>Data Bus</h3>
+                    <ul class="feature-list">
+                        <li>8-bit bidirectional bus</li>
+                        <li>Transfers data between CPU and peripherals</li>
+                        <li>AD7-AD0: Multiplexed address/data lines</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="component-info">
+                <div class="component-item">
+                    <h4>Address Bus</h4>
+                    <p>16-bit unidirectional bus used to specify memory locations or I/O ports. A15-A8 are dedicated address lines, while AD7-AD0 are multiplexed with data.</p>
+                </div>
+                <div class="component-item">
+                    <h4>Data Bus</h4>
+                    <p>8-bit bidirectional bus used for data transfer between the microprocessor and memory or I/O devices.</p>
+                </div>
+                <div class="component-item">
+                    <h4>Control Bus</h4>
+                    <p>Consists of various control signals (RD, WR, ALE, IO/M, etc.) that coordinate data transfer and operation sequencing.</p>
+                </div>
+                <div class="component-item">
+                    <h4>Bus Demultiplexing</h4>
+                    <p>ALE signal is used to separate address and data on the multiplexed AD7-AD0 lines using an external latch.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="instruction" class="content-section">
+            <h2>Instruction Set</h2>
+            <p>The 8085 has a rich instruction set with 246 instructions. These instructions can be classified into different categories based on their functionality.</p>
+            
+            <div class="architecture-grid">
+                <div class="architecture-card">
+                    <h3>Instruction Categories</h3>
+                    <ul class="feature-list">
+                        <li>Data Transfer Instructions</li>
+                        <li>Arithmetic Instructions</li>
+                        <li>Logical Instructions</li>
+                        <li>Branch Instructions</li>
+                        <li>Stack, I/O, and Machine Control</li>
+                    </ul>
+                </div>
+                <div class="architecture-card">
+                    <h3>Instruction Formats</h3>
+                    <ul class="feature-list">
+                        <li>One-byte instructions</li>
+                        <li>Two-byte instructions</li>
+                        <li>Three-byte instructions</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="component-info">
+                <div class="component-item">
+                    <h4>Data Transfer Instructions</h4>
+                    <p>MOV, MVI, LXI, LDA, STA, LHLD, SHLD, LDAX, STAX, XCHG, etc. Used to transfer data between registers and memory.</p>
+                </div>
+                <div class="component-item">
+                    <h4>Arithmetic Instructions</h4>
+                    <p>ADD, ADI, ADC, ACI, SUB, SUI, SBB, SBI, INR, DCR, INX, DCX, DAD, DAA. Perform arithmetic operations on data.</p>
+                </div>
+                <div class="component-item">
+                    <h4>Logical Instructions</h4>
+                    <p>ANA, ANI, ORA, ORI, XRA, XRI, CMP, CPI, RLC, RRC, RAL, RAR, CMA, CMC, STC. Perform logical operations on data.</p>
+                </div>
+                <div class="component-item">
+                    <h4>Branch Instructions</h4>
+                    <p>JMP, JC, JNC, JZ, JNZ, JP, JM, JPE, JPO, CALL, RET, RST. Control program flow and subroutine calls.</p>
+                </div>
+            </div>
+        </section>
+
+        
+        <!-- About Section -->
+        <section id="about" class="content-section">
+            <h2>About This Project</h2>
+            <div class="about-content">
+                <div class="about-card">
+                    <h3>Project Details</h3>
+                    <p>This educational website provides a comprehensive reference for the Intel 8085 Microprocessor architecture and detailed explanations of its internal components and functionality.</p>
+                    <p>The 8085 is an 8-bit microprocessor that was introduced by Intel in the 1970s and became one of the most popular microprocessors of its era.</p>
+                    <p>This resource is designed to help students and electronics enthusiasts understand the architecture and operation of this important historical microprocessor.</p>
+                </div>
+                <div class="about-card">
+                    <h3>Team Information</h3>
+                    <ul class="about-list">
+                        <li><strong>Prepared by:</strong><br>
+                            PARMAR ANIL H. (236090307091)<br>
+                            PATEL SAVAN G. (236090307106)
+                        </li>
+                        <li><strong>Guided by:</strong><br>
+                            MS. SHAILY LANGHONJA<br>
+                            CE Department Lecturer<br>
+                            C.U.Shah Polytechnic
+                        </li>
+                        <li><strong>Institution:</strong><br>
+                            C.U.Shah Polytechnic
+                        </li>
+                        <li><strong>Department:</strong><br>
+                            Computer Engineering
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>8085 Microprocessor Architecture Reference &copy; 2023 | Educational Resource</p>
+            <div class="footer-links">
+                <a href="#" data-target="about">About</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const contentSections = document.querySelectorAll('.content-section');
+            const footerLinks = document.querySelectorAll('.footer-links a');
+            
+            // Navigation button functionality
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    
+                    // Remove active class from all buttons and sections
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    contentSections.forEach(section => section.classList.remove('active'));
+                    
+                    // Add active class to clicked button and corresponding section
+                    this.classList.add('active');
+                    document.getElementById(targetId).classList.add('active');
+                    
+                    // Scroll to the active section
+                    document.getElementById(targetId).scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            });
+            
+            // Footer link functionality
+            footerLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('data-target');
+                    if (targetId) {
+                        // Remove active class from all buttons and sections
+                        navButtons.forEach(btn => btn.classList.remove('active'));
+                        contentSections.forEach(section => section.classList.remove('active'));
+                        
+                        // Add active class to corresponding button and section
+                        document.querySelector(`.nav-btn[data-target="${targetId}"]`).classList.add('active');
+                        document.getElementById(targetId).classList.add('active');
+                        
+                        // Scroll to the active section
+                        document.getElementById(targetId).scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
