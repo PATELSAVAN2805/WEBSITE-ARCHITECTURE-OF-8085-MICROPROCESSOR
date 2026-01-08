@@ -3,4 +3,4 @@ The 8085 microprocessor is an 8-bit processor with a 16-bit address bus. Its arc
 
 USE THIS FILE
     INDEX :- THIS IS A MAIN FILE OF THIS POJECT
-    1-1.JP
+    1-1.PNG,flag-register.png,
